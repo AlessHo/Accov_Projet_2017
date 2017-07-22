@@ -8,14 +8,11 @@ package projetaccov;
 import java.io.IOException;
 import java.io.PrintWriter;
 import static java.lang.Math.cos;
-import static java.lang.Math.random;
 import static java.lang.Math.sin;
 import static java.lang.System.exit;
 import static java.lang.Thread.sleep;
-import java.lang.reflect.Constructor;
 import java.net.Socket;
 import java.security.SecureRandom;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,45 +28,43 @@ public class AvionClient {
     int vitesseMin = 200;
     int pause = 2000;
     char[] numero_vol;
-    String NumeroAvion="";
+    String NumeroAvion = "";
     static Socket socket;
+    String changements = "Pas de changement";
 
-    
     static final String Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     static final String Numbers = "0123456789";
-    
+
     static SecureRandom rnd = new SecureRandom();
     //Random rand = new Random();
-    
-    String randomString( ){
-        StringBuilder sb = new StringBuilder(5);
-        for( int i = 0; i < 2; i++ ) 
-            sb.append( Letters.charAt( rnd.nextInt(Letters.length()) ) );
-         for( int i = 0; i < 3; i++ ) 
-            sb.append( Numbers.charAt( rnd.nextInt(Numbers.length()) ) );
-        
-        return sb.toString();
-        
-        
-        
-        /*int min = 0;
-        int max = 9;
-        
-        numero_vol = new char[5];
 
-        numero_vol[0] = (char) ((random() % 26) + 'A');
-        numero_vol[1] = (char) ((random() % 26) + 'A');
-        numero_vol[2] = (char) rand.nextInt(((max - min) + 1) + min);
-        rand = new Random();
-        numero_vol[3] = (char) rand.nextInt(((max - min) + 1) + min);
-        rand = new Random();
-        numero_vol[4] = (char) rand.nextInt(((max - min) + 1) + min);
+    String randomString() {
+        StringBuilder sb = new StringBuilder(5);
+        for (int i = 0; i < 2; i++) {
+            sb.append(Letters.charAt(rnd.nextInt(Letters.length())));
+        }
+        for (int i = 0; i < 3; i++) {
+            sb.append(Numbers.charAt(rnd.nextInt(Numbers.length())));
+        }
+
+        return sb.toString();
+
+        /*int min = 0;
+         int max = 9;
         
-        return numero_vol.toString();*/
+         numero_vol = new char[5];
+
+         numero_vol[0] = (char) ((random() % 26) + 'A');
+         numero_vol[1] = (char) ((random() % 26) + 'A');
+         numero_vol[2] = (char) rand.nextInt(((max - min) + 1) + min);
+         rand = new Random();
+         numero_vol[3] = (char) rand.nextInt(((max - min) + 1) + min);
+         rand = new Random();
+         numero_vol[4] = (char) rand.nextInt(((max - min) + 1) + min);
         
-        
+         return numero_vol.toString();*/
     }
-    
+
     private coordonnees coord;
     private deplacement dep;
 
@@ -114,22 +109,21 @@ public class AvionClient {
         // fonction à implémenter qui envoie l'ensemble des caractéristiques
         // courantes de l'avion au gestionnaire de vols
 
-        return "Avion:" + NumeroAvion + "   Localisation:" + coord.getX() + "," + coord.getY() + "," + coord.getAltitude() + "   Vitesse:" + dep.getVitesse() + "   Cap:" + dep.getCap();
+        return "Avion:" + NumeroAvion + " - X:" + coord.getX() + "-Y:" + coord.getY() + "-Z:" + coord.getAltitude() + "-Vitesse:" + dep.getVitesse() + "-Cap:" + dep.getCap() + "-Notes:" + changements;
     }
 
     public AvionClient() {
 
-        int x = (int) (1000 + random() % 1000);
-        int y = (int) (1000 + random() % 1000);
-        int z = (int) (900 + random() % 100);
+       // int nextInt = rnd.nextInt(Numbers.length());
+        int x = (int) (1000 + rnd.nextInt(Numbers.length()) % 1000);
+        int y = (int) (1000 + rnd.nextInt(Numbers.length()) % 1000);
+        int z = (int) (900 + rnd.nextInt(Numbers.length()) % 100);
 
-        int cap = (int) (random() % 360);
-        int vitesse = (int) (600 + random() % 200);
+        int cap = (int) (rnd.nextInt(Numbers.length()) % 360);
+        int vitesse = (int) (600 + rnd.nextInt(Numbers.length()) % 200);
 
-          
+        NumeroAvion = randomString();
 
-        NumeroAvion = randomString();   
-        
         coord = new coordonnees(x, y, z);
         dep = new deplacement(cap, vitesse);
 
@@ -173,7 +167,7 @@ public class AvionClient {
 
     void calcul_deplacement() {
         float cosinus, sinus;
-        float dep_x, dep_y;
+        float dep_x, dep_y, dep_z;
         int nb;
 
         if (dep.getVitesse() < vitesseMin) {
@@ -187,7 +181,7 @@ public class AvionClient {
             exit(3);
         }
         //cos et sin ont un paramétre en radian, dep.cap en degré nos habitudes francophone
-    /* Angle en radian = pi * (angle en degré) / 180 
+        /* Angle en radian = pi * (angle en degré) / 180 
          Angle en radian = pi * (angle en grade) / 200 
          Angle en grade = 200 * (angle en degré) / 180 
          Angle en grade = 200 * (angle en radian) / pi 
@@ -235,34 +229,60 @@ public class AvionClient {
         }
     }
 
+    public void demarrer() {
+
+        PrintWriter out;
+        try {
+
+            if (ouvrir_communication() == true) {
+                String caracteristiques = envoyer_caracteristiques();
+
+                out = new PrintWriter(socket.getOutputStream());
+                out.println(caracteristiques);
+
+                while (true) {
+                    sleep(pause);
+                   // out = new PrintWriter(avion.socket.getOutputStream());
+                    // out.println(caracteristiques);
+
+                    calcul_deplacement();
+                    caracteristiques = envoyer_caracteristiques();
+                    out.println(caracteristiques);
+                    out.flush();
+                }
+                //avion.fermer_communication();
+
+            }
+        } catch (Exception ex) {
+            System.out.println("Fin Avion");
+        }
+
+    }
+
     public static void main(String[] args) throws InterruptedException {
 
         PrintWriter out;
-        
+
         try {
 
             AvionClient avion = new AvionClient();
             if (avion.ouvrir_communication() == true) {
-                
+
                 String caracteristiques = avion.envoyer_caracteristiques();
-                
+
                 out = new PrintWriter(avion.socket.getOutputStream());
                 out.println(caracteristiques);
-                
-                
-                while (true){
+                while (true) {
                     sleep(avion.pause);
                    // out = new PrintWriter(avion.socket.getOutputStream());
-                   // out.println(caracteristiques);
-                    
+                    // out.println(caracteristiques);
+
                     avion.calcul_deplacement();
                     caracteristiques = avion.envoyer_caracteristiques();
                     out.println(caracteristiques);
-
-                    out.flush();                
+                    out.flush();
                 }
-                //avion.fermer_communication();
-                
+                //avion.fermer_communication();                
             }
 
         } catch (Exception ex) {

@@ -5,6 +5,7 @@
  */
 package projetaccov;
 
+import JFrames.ControllerJFrame;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,11 +45,21 @@ public class Controller {
         try {
 
             Controller cont = new Controller();
+            
+            ControllerJFrame cjf =  new ControllerJFrame();
+            cjf.setVisible(true);
+            
             if (cont.ouvrir_communication() == true) {
                 while (true) {
                     BufferedReader inFromSaca = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     message = inFromSaca.readLine();
-                    System.out.println(message);
+                    
+                    String[] split = message.split("-");
+                    cjf.UpdateTitle(split[0]);
+                    cjf.Updatebody(split[1]);
+                    //System.out.println(message);
+                           
+                    
                 }
             }
             

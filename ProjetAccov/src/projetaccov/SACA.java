@@ -18,9 +18,11 @@ public class SACA {
 
     public static ArrayList<String> list;
 
+    
+    
     public static void main(String[] zero) {
 
-        /*ServerSocket socketserver  ;
+     /*   ServerSocket socketserver  ;
          Socket socketduserveur ;
          BufferedReader in;
          PrintWriter out;
@@ -41,8 +43,12 @@ public class SACA {
          }catch (IOException e) {
 			
          e.printStackTrace();
-         }*/
-        
+         }
+        */
+    
+        /////////////////////////////////
+    
+    
         ServerSocket serversocketAvion;
         ServerSocket serverSocketController;
         ServerSocket serversocketRadar;
@@ -68,6 +74,8 @@ public class SACA {
             Connecter_Controller cC = new Connecter_Controller(serverSocketController,list);
             cC.start();
 
+            
+            
                 //}
         } catch (IOException e) {
             System.out.println("Fin SACA");

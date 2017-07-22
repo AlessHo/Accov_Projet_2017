@@ -36,14 +36,14 @@ public class Connecter_Avion extends Thread {
 
     @Override
     public void run() {
-        int nbrAvion = 1;
+        int nbrAvion = 0;
         while (true) {
 
             
             try {
                 
                 socket = SacaSocket.accept();
-                Thread t = new Thread(new Accepter_Avion(socket, SocketRadar,list));
+                Thread t = new Thread(new Accepter_Avion(socket, SocketRadar,list,nbrAvion));
                 t.start();
                 AfficherMessage("L'avion numero " + nbrAvion + "a demarré");
                 nbrAvion++;

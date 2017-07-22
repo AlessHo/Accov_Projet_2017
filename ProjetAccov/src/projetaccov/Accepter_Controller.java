@@ -40,7 +40,7 @@ public class Accepter_Controller implements Runnable {
                 //Thread.sleep(2000);
                 
                 outToRadar = new PrintWriter(SacaSocket.getOutputStream());
-                outToRadar.println("Controller number " + num + "   " + list.toString()); 
+                outToRadar.println("Controller: " + num + "  -  " + list.toString()); 
                 outToRadar.flush();
                 Thread.sleep(2000);
                 

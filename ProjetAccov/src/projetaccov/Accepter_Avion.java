@@ -25,14 +25,15 @@ public class Accepter_Avion implements Runnable {
     //private ServerSocket socketserver;
     private Socket socket;
     private Socket socketRadar;
-    private int nbrAvion = 1;
+    private int nbrAvion ;
     private PrintWriter outToRadar = null;
     ArrayList<String> list;
 
-    public Accepter_Avion(Socket socket, Socket socketRadar, ArrayList<String> list) {
+    public Accepter_Avion(Socket socket, Socket socketRadar, ArrayList<String> list,int nbrAvion) {
         this.socket = socket;
         this.socketRadar = socketRadar;
         this.list = list;
+        this.nbrAvion = nbrAvion;
     }
 
     @Override
@@ -52,12 +53,12 @@ public class Accepter_Avion implements Runnable {
 
                //String s = list.toString();
                 // message_From_Avion.substring(6,10)
-                if (!list.contains(nom_avion.trim())) {
-                
+                if (!list.contains(nom_avion.trim())) {                
                     list.add(nom_avion.trim());
                 }
 
                 outToRadar = new PrintWriter(socketRadar.getOutputStream());
+                message_From_Avion = message_From_Avion + "-NumeroAvion:" +nbrAvion;
                 outToRadar.println(message_From_Avion); //evoie id/nom/arrivee
                 outToRadar.flush();
 
